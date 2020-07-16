@@ -13,7 +13,6 @@ import re
 import os
 import datetime
 
-
 def getReceipt(image_filename):
     """
     returns a text after OCR was conducted on image filename.
@@ -28,6 +27,19 @@ def getReceipt(image_filename):
     return pytesseract.image_to_string(image_filename_pdf[0])
 
 
+def getBizPair(search_item, bizname):
+    """
+    getBizPair returns a dictionary that associates search_item to bizname.
+
+        \param search_item, e.g., ' 309 Lake Forest'
+
+        \param bizname, e.g., daiso
+
+        \return dictionary
+    """
+    return {'search_item': search_item.lower(), 'bizname': bizname.lower()}
+
+
 def getBizName(receipt_in_list):
     """
     get biz name using receipt list passed as parameter.
@@ -37,17 +49,56 @@ def getBizName(receipt_in_list):
         \return text string with name.
     """
 
-    business_name = receipt_in_list[0]
+    search_list_dic = [getBizPair('9 Lake Forest', '99c'),
+                       getBizPair('789 South Tustin Street', '99c'),
+                       getBizPair('765 South', '99c'),
+                       getBizPair('4045 Lake Forest', 'daiso'),
+                       getBizPair('2655 El Camino Real', 'costco'),
+                       getBizPair('435 w. katella ave', 'home depot'),
+                       getBizPair('more saving','home depot'),
+                       getBizPair('1288 Camino Del Rio N', 'target'),
+                       getBizPair('test3', 'sams club'),
+                       getBizPair('pump#', 'sams gas'),
+                       getBizPair('test5', 'blu'),
+                       getBizPair('farmers market', 'sprouts'),
+                       getBizPair('wyndham', 'worldmark'),
+                       getBizPair('CROWN ACE', 'ace'),
+                       getBizPair('ralphs', 'ralphs'),
+                       getBizPair('best buy', 'best buy'),
+                       getBizPair('walmart', 'walmart'),
+                       getBizPair('cvs', 'cvs'),
+                       getBizPair('gate market', 'northgate'),
+                       getBizPair('mother', 'mothers'),
+                       getBizPair('albertsons', 'albertsons'),
+                       getBizPair('& state college', '99c'),
+                       getBizPair('Garden Grove #126', 'costco')]
 
-    if not business_name:
-        biz_search = " "
-    else:
-        biz_search = re.search("^[ ]*$", business_name)
+    business_name = None
 
-    if biz_search is not None:
+    modified_search_list = []
+    for x in receipt_in_list:
+        modified_search_list.append(x.lower())
+
+    for d in search_list_dic:
+        search_item = d['search_item']
+        search_bizname = d['bizname']
+
+        r_search_item = re.compile(".*" + search_item)
+        r_bizname = re.compile(search_bizname)
+
+        list_search_item = list(filter(r_search_item.match, modified_search_list))
+        list_bizname = list(filter(r_bizname.match, modified_search_list))
+
+        if list_bizname:
+            business_name = search_bizname
+            break
+
+        if list_search_item:
+            business_name = search_bizname
+            break
+
+    if business_name is None:
         business_name = "unknown biz"
-
-    business_name = business_name.replace("-", " ").replace("'", "").lower()
 
     return business_name
 
@@ -176,7 +227,7 @@ def compare_filenames(standard_file, automatic_file):
                "name equal": 0,
                "price equal": 0}
 
-    std_list = standard_file.split("-")
+    std_list = standard_file.lower().split("-")
     auto_list = automatic_file.split("-")
 
     std_date = std_list[0] + "-" + std_list[1] + "-" + std_list[2]
@@ -219,7 +270,7 @@ if __name__ == "__main__":
 
         __list_file = __text_file.split("\n")
 
-        # print(__list_file)
+        print(__list_file)
 
         __the_filename = getFilename(__list_file) + ".pdf"
 
