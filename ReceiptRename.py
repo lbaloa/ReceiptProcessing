@@ -55,6 +55,7 @@ def getBizName(receipt_in_list):
                        getBizPair('4045 Lake Forest', 'daiso'),
                        getBizPair('2655 El Camino Real', 'costco'),
                        getBizPair('435 w. katella ave', 'home depot'),
+                       getBizPair('23651 El Toro rd', 'home depot'),
                        getBizPair('more saving','home depot'),
                        getBizPair('1288 Camino Del Rio N', 'target'),
                        getBizPair('test3', 'sams club'),
@@ -104,32 +105,58 @@ def getBizName(receipt_in_list):
 
 
 def __getValidDate(string_date):
-    string_length = len(string_date)
 
-    month = int(string_date[0:2])
-    day = int(string_date[3:5])
+    result = re.search("[JFMASOND][a-zA-Z]{3,8}[ ]+", string_date)
+
+    month = 0
     year = 0
+    day = 0
 
-    if string_length == 8:
+    if result is not None:
 
-        year = 2000 + int(string_date[6:9])
+        month_string = result.group()
 
-    elif string_length == 10:
+        month_key = month_string[0:3].capitalize()
 
-        year = int(string_date[6:11])
+        month_dict = {'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4,
+                      'May': 5, 'Jun': 6, 'Jul': 7, 'Aug': 8,
+                      'Sep': 9, 'Oct': 10, 'Nov': 11, 'Dec': 12}
+
+        month = month_dict[month_key]
+
+        day_year = string_date.replace(month_string, "")
+
+        day = int(re.search("[0-9]{1,2}[,][ ]+", day_year).group().replace(", ", ""))
+
+        year = int(re.search("20[0-9]{2}", day_year).group())
 
     else:
+        string_length = len(string_date)
 
-        return None
+        month = int(string_date[0:2])
+        day = int(string_date[3:5])
+        year = 0
 
-    if 1 < month > 12:
-        return None
+        if string_length == 8:
 
-    if 1 < day > 31:
-        return None
+            year = 2000 + int(string_date[6:9])
 
-    if 2019 < year > 2020:
-        return None
+        elif string_length == 10:
+
+            year = int(string_date[6:11])
+
+        else:
+
+            return None
+
+        if 1 < month > 12:
+            return None
+
+        if 1 < day > 31:
+            return None
+
+        if 2019 < year > 2020:
+            return None
 
     return_valid_date = datetime.date(year, month, day)
 
@@ -149,6 +176,10 @@ def getDate(receipt_in_list):
 
     for item in receipt_in_list:
         result = re.search("[0-9]{2}[/-][0-9]{2}[/-](20)?[0-9]{2}", item)
+
+        if result is None:
+            result = re.search("[JFMASOND][a-zA-Z]{3,8}[ ]+[0-9]{1,2}[,][ ]+20[0-9]{2}", item)
+
         if result is not None:
             actual_date = __getValidDate(result.group())
             if actual_date is not None:
@@ -228,7 +259,7 @@ def compare_filenames(standard_file, automatic_file):
                "price equal": 0}
 
     std_list = standard_file.lower().split("-")
-    auto_list = automatic_file.split("-")
+    auto_list = automatic_file.lower().split("-")
 
     std_date = std_list[0] + "-" + std_list[1] + "-" + std_list[2]
     auto_date = auto_list[0] + "-" + auto_list[1] + "-" + auto_list[2]
@@ -240,7 +271,7 @@ def compare_filenames(standard_file, automatic_file):
         results["name equal"] = 1
 
     std_price = std_list[4].split(".pdf")
-    auto_price = std_list[4].split(".pdf")
+    auto_price = auto_list[4].split(".pdf")
 
     if std_price is None:
         std_price = "0.0"
@@ -266,16 +297,19 @@ if __name__ == "__main__":
     result_list = []
 
     for __file in __filename:
+
+        if __file.count('-') != 4:
+            continue
+
         __text_file = getReceipt(__file)
 
         __list_file = __text_file.split("\n")
 
-        print(__list_file)
+        #print(__list_file)
 
         __the_filename = getFilename(__list_file) + ".pdf"
 
-        print(__file)
-        print(__the_filename)
+        # print("std_file: " + __the_filename + ", auto_price: "+ __file)
 
         compare_results = compare_filenames(__file, __the_filename)
 
