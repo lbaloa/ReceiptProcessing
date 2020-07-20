@@ -84,7 +84,8 @@ def getBizName(receipt_in_list):
                        getBizPair('24952 raymond way', 'usps'),
                        getBizPair('11000 Garden', 'costco'),
                        getBizPair('wholesale', 'costco'),
-                       getBizPair('dunkin', 'dunkin')]
+                       getBizPair('dunkin', 'dunkin'),
+                       getBizPair('115 Technology Drive', 'costco')]
 
     business_name = None
 
@@ -298,7 +299,7 @@ if __name__ == "__main__":
 
     __path = "."
     #    __filename = fnmatch.filter(os.listdir(__path), '*.jpg')
-    __filename = fnmatch.filter(os.listdir(__path), '*99c*.pdf')
+    __filename = fnmatch.filter(os.listdir(__path), '*.pdf')
 
     result_list = []
 
