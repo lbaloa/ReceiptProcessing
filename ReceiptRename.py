@@ -83,7 +83,8 @@ def getBizName(receipt_in_list):
                        getBizPair('low prices.*every day', 'walmart'),
                        getBizPair('24952 raymond way', 'usps'),
                        getBizPair('11000 Garden', 'costco'),
-                       getBizPair('wholesale', 'costco')]
+                       getBizPair('wholesale', 'costco'),
+                       getBizPair('dunkin', 'dunkin')]
 
     business_name = None
 
@@ -142,36 +143,29 @@ def __getValidDate(string_date):
         year = int(re.search("20[0-9]{2}", day_year).group())
 
     else:
-        string_length = len(string_date)
 
-        month = int(string_date[0:2])
-        day = int(string_date[3:5])
-        year = 0
-
-        if string_length == 8:
-
-            year = 2000 + int(string_date[6:9])
-
-        elif string_length == 10:
-
-            year = int(string_date[6:11])
-
+        if string_date.find('/') != -1:
+            split_char = '/'
         else:
+            split_char = '-'
 
-            return None
+        date_list = string_date.split(split_char)
 
-        if 1 < month > 12:
-            return None
+        if len(date_list) == 3:
 
-        if 1 < day > 31:
-            return None
+            month = int(date_list[0])
+            day = int(date_list[1])
+            year = int(date_list[2])
+            if 0 <= year <= 99:
+                year = 2000 + year
 
-        if 2019 < year > 2020:
-            return None
+    if 1 <= month <= 12 and \
+        1 <= day <= 31 and  \
+        2019 <= year <= 2020:
 
-    return_valid_date = datetime.date(year, month, day)
+        return datetime.date(year, month, day)
 
-    return return_valid_date
+    return None
 
 
 def getDate(receipt_in_list):
@@ -186,7 +180,7 @@ def getDate(receipt_in_list):
     date_set = set()
 
     for item in receipt_in_list:
-        result = re.search("[0-9]{2}[/-][0-9]{2}[/-](20)?[0-9]{2}", item)
+        result = re.search("[0-9]{1,2}[/-][0-9]{1,2}[/-](20)?[0-9]{2}", item)
 
         if result is None:
             result = re.search("[JFMASOND][a-zA-Z]{3,8}[ ]+[0-9]{1,2}[,][ ]+20[0-9]{2}", item)
@@ -195,6 +189,7 @@ def getDate(receipt_in_list):
             actual_date = __getValidDate(result.group())
             if actual_date is not None:
                 date_set.add(actual_date)
+                break
 
     if len(date_set) != 0:
         return date_set.pop().strftime("%Y-%m-%d")
@@ -303,7 +298,7 @@ if __name__ == "__main__":
 
     __path = "."
     #    __filename = fnmatch.filter(os.listdir(__path), '*.jpg')
-    __filename = fnmatch.filter(os.listdir(__path), '*.pdf')
+    __filename = fnmatch.filter(os.listdir(__path), '*99c*.pdf')
 
     result_list = []
 
