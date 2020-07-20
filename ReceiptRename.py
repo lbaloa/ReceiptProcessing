@@ -72,7 +72,18 @@ def getBizName(receipt_in_list):
                        getBizPair('mother', 'mothers'),
                        getBizPair('albertsons', 'albertsons'),
                        getBizPair('& state college', '99c'),
-                       getBizPair('Garden Grove #126', 'costco')]
+                       getBizPair('Garden Grove #126', 'costco'),
+                       getBizPair('homedepot', 'home depot'),
+                       getBizPair('309 lake forest', '99c'),
+                       getBizPair('car wash', 'carwash'),
+                       getBizPair('starbucks', 'starbucks'),
+                       getBizPair('389 lake forest', '99c'),
+                       getBizPair('789 south tustin', '99c'),
+                       getBizPair('more saving', 'home depot'),
+                       getBizPair('low prices.*every day', 'walmart'),
+                       getBizPair('24952 raymond way', 'usps'),
+                       getBizPair('11000 Garden', 'costco'),
+                       getBizPair('wholesale', 'costco')]
 
     business_name = None
 
@@ -305,15 +316,19 @@ if __name__ == "__main__":
 
         __list_file = __text_file.split("\n")
 
-        #print(__list_file)
 
         __the_filename = getFilename(__list_file) + ".pdf"
-
-        # print("std_file: " + __the_filename + ", auto_price: "+ __file)
 
         compare_results = compare_filenames(__file, __the_filename)
 
         result_list.append(compare_results)
-        print(compare_results)
+
+        if(compare_results['date equal'] == 0 or
+           compare_results['name equal'] == 0 or
+           compare_results['price equal'] == 0):
+
+            print(__list_file)
+            print(compare_results)
+            print("")
 
     print("\n"+match_results_summary(result_list))
