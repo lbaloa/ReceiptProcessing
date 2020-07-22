@@ -85,7 +85,14 @@ def getBizName(receipt_in_list):
                        getBizPair('11000 Garden', 'costco'),
                        getBizPair('wholesale', 'costco'),
                        getBizPair('dunkin', 'dunkin'),
-                       getBizPair('115 Technology Drive', 'costco')]
+                       getBizPair('115 Technology Drive', 'costco'),
+                       getBizPair('2030 E.', 'northgate'),
+                       getBizPair('stores', '99c'),
+                       getBizPair('26302 oso park', 'gas'),
+                       getBizPair('la health center', 'doctor'),
+                       getBizPair('statons', 'gas'),
+                       getBizPair('ralph', 'ralphs'),
+                       getBizPair('kroger', 'ralphs')]
 
     business_name = None
 
